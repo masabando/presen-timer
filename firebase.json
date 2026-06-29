@@ -17,6 +17,11 @@
     "rules": "database.rules.json"
   },
   "auth": {
-    "providers": {}
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "ktc-presen-timer",
+        "supportEmail": "bando@ktc.ac.jp"
+      }
+    }
   }
 }
