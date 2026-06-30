@@ -16,7 +16,7 @@ export default function App() {
   }, [user])
 
   return (
-    <div>
+    <div className="bg-black">
       <LoginButton user={user} loading={loading} auth={auth} provider={provider} />
       <Timer admin={admin} />
     </div>

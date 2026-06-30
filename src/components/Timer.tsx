@@ -19,22 +19,25 @@ export default function Timer({ admin }: TimerProps) {
     defenseTime: 2 * 60, // 2 minutes in seconds
   });
   const [remainingTime, setRemainingTime] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const timerRef = ref(database, "timer");
     onValue(timerRef, (snapshot) => {
       const data = snapshot.val();
-      if (data && data.time && data.time !== time.now) {
+      if (data) {
         setTime({
-          ...time,
-          ...data,
+          now: data.now ? data.now : null,
+          presentationTime: data.presentationTime,
+          defenseTime: data.defenseTime,
         });
+        setLoaded(true);
       }
     });
   }, []);
 
   useEffect(() => {
-    if (time.now !== null) {
+    if (admin && loaded) {
       set(ref(database, "timer"), time);
     }
     const interval = setInterval(() => {
@@ -47,23 +50,23 @@ export default function Timer({ admin }: TimerProps) {
       }
     }, 100);
     return () => clearInterval(interval);
-  }, [time]);
+  }, [time, admin, loaded]);
 
   return (
     <div className="flex flex-col items-center justify-center h-svh gap-2">
-      <div className="text-4xl">
+      <div className={`text-[10vw] ${remainingTime < 0 ? "text-error" : ""}`}>
         {remainingTime > time.defenseTime
           ? "発表"
           : remainingTime > 0
             ? "質疑応答"
-            : "終了"}
+            : "超過"}
       </div>
-      <div className="aura aura-silver">
-        <div className="card bg-base-100">
+      <div className="aura aura-rainbow">
+        <div className="card bg-black">
           <div
-            className={`card-body text-8xl font-mono ${remainingTime < 0 ? "text-error" : ""}`}
+            className={`card-body text-[24vw] font-mono ${remainingTime < 0 ? "text-error" : ""}`}
           >
-            <p>
+            <p className="leading-none">
               {Math.floor(Math.abs(remainingTime) / 60)
                 .toString()
                 .padStart(1, "0")}
@@ -93,6 +96,7 @@ export default function Timer({ admin }: TimerProps) {
           <select
             defaultValue={time.presentationTime}
             className="select"
+            disabled={time.now !== null}
             onChange={(e) =>
               setTime({ ...time, presentationTime: parseInt(e.target.value) })
             }
@@ -109,6 +113,7 @@ export default function Timer({ admin }: TimerProps) {
           <select
             defaultValue={time.defenseTime}
             className="select"
+            disabled={time.now !== null}
             onChange={(e) =>
               setTime({ ...time, defenseTime: parseInt(e.target.value) })
             }
